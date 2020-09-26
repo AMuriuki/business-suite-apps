@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="author" content="https://business-apps.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" href="../static/images/favicon.png">
+    {% if title %}
+    <title>{{title}}</title>
+    {% else %}
+    <title>Welcome</title>
+    {% endif %}
+    <meta name="description"
+        content="ContractorMS helps firms automate critical processes such as takeoff, estimating, project management and accounting, and integrates various applications and stages of the project life cycle, from pre-sale through building and final billing. These tool can help firms modernize, grow their business and operate more efficiently.">
+    <meta name="keywords"
+        content="construction management software, open source, ContractorMS, contractor, apps, saas, cloud" />
+    {% if title == 'Open Source Business Apps' %}
+    <link rel="stylesheet" href="../static/css/dashlite2c00.css">
+    {% else %}
+    <link rel="stylesheet" href="../../static/css/dashlite.css">
+    <link id="skin-default" rel="stylesheet" href="../../static/css/theme.css">
+    {% endif %}
+</head>
+{% block content %}
+{% endblock %}
+</html>
+
