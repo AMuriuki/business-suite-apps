@@ -1,0 +1,2 @@
+web: flask db upgrade; flask translate compile; gunicorn erp-crm:app
+worker: rq worker erp-crm-tasks
