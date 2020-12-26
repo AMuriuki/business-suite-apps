@@ -7,7 +7,8 @@ from guess_language import guess_language
 from app import db
 from app.main.forms import EditProfileForm, EmptyForm, PostForm, SearchForm, \
     MessageForm
-from app.models import User, Post, Message, Notification
+from app.auth import models as auth_models
+# from app.models import Post, Message, Notification
 from app.translate import translate
 from app.main import bp
 
@@ -23,7 +24,7 @@ def before_request():
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def index():
     form = PostForm()
     if form.validate_on_submit():
@@ -59,9 +60,9 @@ def explore():
 @bp.route('/user/<username>')
 @login_required
 def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
+    user = auth_models.User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
-    posts = user.posts.order_by(Post.timestamp.desc()).paginate(
+    posts = auth_models.User.posts.order_by(Post.timestamp.desc()).paginate(
         page, current_app.config['POSTS_PER_PAGE'], False)
     next_url = url_for('main.user', username=user.username,
                        page=posts.next_num) if posts.has_next else None
@@ -75,7 +76,7 @@ def user(username):
 @bp.route('/user/<username>/popup')
 @login_required
 def user_popup(username):
-    user = User.query.filter_by(username=username).first_or_404()
+    user = auth_models.User.query.filter_by(username=username).first_or_404()
     form = EmptyForm()
     return render_template('user_popup.html', user=user, form=form)
 
@@ -102,7 +103,7 @@ def edit_profile():
 def follow(username):
     form = EmptyForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=username).first()
+        user = auth_models.User.query.filter_by(username=username).first()
         if user is None:
             flash(_('User %(username)s not found.', username=username))
             return redirect(url_for('main.index'))
@@ -122,7 +123,7 @@ def follow(username):
 def unfollow(username):
     form = EmptyForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=username).first()
+        user = auth_models.User.query.filter_by(username=username).first()
         if user is None:
             flash(_('User %(username)s not found.', username=username))
             return redirect(url_for('main.index'))
@@ -164,7 +165,7 @@ def search():
 @bp.route('/send_message/<recipient>', methods=['GET', 'POST'])
 @login_required
 def send_message(recipient):
-    user = User.query.filter_by(username=recipient).first_or_404()
+    user = auth_models.User.query.filter_by(username=recipient).first_or_404()
     form = MessageForm()
     if form.validate_on_submit():
         msg = Message(author=current_user, recipient=user,

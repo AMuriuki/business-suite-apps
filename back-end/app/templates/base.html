@@ -6,8 +6,7 @@
     <meta charset="utf-8">
     <meta name="author" content="Softnio">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description"
-        content="ERP, CRM, etc. Business tools to help your organization grow.">
+    <meta name="description" content="ERP, CRM, etc. Business tools to help your organization grow.">
     <!-- Fav Icon  -->
     <link rel="shortcut icon" href="../static/images/favicon.png">
     <!-- Page Title  -->
@@ -16,8 +15,23 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/dashlite.css') }}">
     <link id="skin-default" rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}">
 </head>
+{% if title == 'ERP-CRM | Sign In' %}
 
-<body class="nk-body bg-white npc-default has-aside ">
+<body class="nk-body bg-white npc-default pg-auth">
+    <div class="nk-app-root">
+        <div class="nk-main">
+            <div class="nk-wrap nk-wrap-nosidebar">
+                {% block auth %} {% endblock %}
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='assets/js/bundle.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/demo-settings.js') }}"></script>
+</body>
+{% else %}
+
+<body class="nk-body bg-white npc-default has-aside">
     <div class="nk-app-root">
         <!-- main @s -->
         <div class="nk-main ">
@@ -27,7 +41,7 @@
                     <div class="container-lg wide-xl">
                         <div class="nk-header-wrap">
                             <div class="nk-header-brand">
-                                <a href="html/index.html" class="logo-link">
+                                <a href="{{url_for('main.index')}}" class="logo-link">
                                     <img class="logo-light logo-img"
                                         src="{{ url_for('static', filename='images/logo.png') }}" alt="logo">
                                     <img class="logo-dark logo-img"
@@ -37,7 +51,7 @@
                             <div class="nk-header-menu">
                                 <ul class="nk-menu nk-menu-main">
                                     <li class="nk-menu-item">
-                                        <a href="html/index.html" class="nk-menu-link">
+                                        <a href="{{url_for('main.index')}}" class="nk-menu-link">
                                             <span class="nk-menu-text">Overview</span>
                                         </a>
                                     </li><!-- .nk-menu-item -->
@@ -186,12 +200,9 @@
                                             class="dropdown-menu dropdown-menu-md dropdown-menu-right dropdown-menu-s1">
                                             <div class="dropdown-inner user-card-wrap bg-lighter d-none d-md-block">
                                                 <div class="user-card">
-                                                    <div class="user-avatar">
-                                                        <span>AB</span>
-                                                    </div>
                                                     <div class="user-info">
-                                                        <span class="lead-text">Abu Bin Ishtiyak</span>
-                                                        <span class="sub-text">info@softnio.com</span>
+                                                        <span class="lead-text">{{current_user.fname}} {{current_user.lname}}</span>
+                                                        <span class="sub-text">{{current_user.email}}</span>
                                                     </div>
                                                     <div class="user-action">
                                                         <a class="btn btn-icon mr-n2"
@@ -215,7 +226,7 @@
                                             </div>
                                             <div class="dropdown-inner">
                                                 <ul class="link-list">
-                                                    <li><a href="#"><em class="icon ni ni-signout"></em><span>Sign
+                                                    <li><a href="{{url_for('auth.logout')}}"><em class="icon ni ni-signout"></em><span>Sign
                                                                 out</span></a></li>
                                                 </ul>
                                             </div>
@@ -238,7 +249,7 @@
                                 <div class="nk-sidebar-menu" data-simplebar>
                                     <ul class="nk-menu nk-menu-main">
                                         <li class="nk-menu-item">
-                                            <a href="html/index.html" class="nk-menu-link">
+                                            <a href="{{url_for('main.index')}}" class="nk-menu-link">
                                                 <span class="nk-menu-text">Overview</span>
                                             </a>
                                         </li><!-- .nk-menu-item -->
@@ -300,7 +311,7 @@
                                             <h6 class="overline-title text-primary-alt">Dashboards</h6>
                                         </li><!-- .nk-menu-heading -->
                                         <li class="nk-menu-item">
-                                            <a href="html/index.html" class="nk-menu-link">
+                                            <a href="{{url_for('main.index')}}" class="nk-menu-link">
                                                 <span class="nk-menu-icon"><em class="icon ni ni-dashlite"></em></span>
                                                 <span class="nk-menu-text">SaaS Dashboard</span>
                                             </a>
@@ -582,5 +593,6 @@
     <script src="{{ url_for('static', filename='assets/js/kanban-custom.js') }}"></script>
 
 </body>
+{% endif %}
 
 </html>

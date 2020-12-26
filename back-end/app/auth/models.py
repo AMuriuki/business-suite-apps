@@ -12,6 +12,7 @@ import redis
 import rq
 from app import db, login
 from app.search import add_to_index, remove_from_index, query_index
+from app.main.models import Message, Task, Notification
 
 
 class SearchableMixin(object):
@@ -90,11 +91,11 @@ followers = db.Table(
 
 class User(UserMixin, PaginatedAPIMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    fname = db.Column(db.String(64), index=True)
+    lname = db.Column(db.String(64), index=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    posts = db.relationship('Post', backref='author', lazy='dynamic')
-    about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     token = db.Column(db.String(32), index=True, unique=True)
     token_expiration = db.Column(db.DateTime)
@@ -103,16 +104,16 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
         primaryjoin=(followers.c.follower_id == id),
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    messages_sent = db.relationship('Message',
-                                    foreign_keys='Message.sender_id',
+    messages_sent = db.relationship(Message,
+                                    foreign_keys=Message.sender_id,
                                     backref='author', lazy='dynamic')
-    messages_received = db.relationship('Message',
-                                        foreign_keys='Message.recipient_id',
+    messages_received = db.relationship(Message,
+                                        foreign_keys=Message.recipient_id,
                                         backref='recipient', lazy='dynamic')
     last_message_read_time = db.Column(db.DateTime)
-    notifications = db.relationship('Notification', backref='user',
+    notifications = db.relationship(Notification, backref='user',
                                     lazy='dynamic')
-    tasks = db.relationship('Task', backref='user', lazy='dynamic')
+    tasks = db.relationship(Task, backref='user', lazy='dynamic')
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -139,13 +140,6 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
     def is_following(self, user):
         return self.followed.filter(
             followers.c.followed_id == user.id).count() > 0
-
-    def followed_posts(self):
-        followed = Post.query.join(
-            followers, (followers.c.followed_id == Post.user_id)).filter(
-                followers.c.follower_id == self.id)
-        own = Post.query.filter_by(user_id=self.id)
-        return followed.union(own).order_by(Post.timestamp.desc())
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
