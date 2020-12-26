@@ -19,7 +19,7 @@ migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
 login.login_message = _l('Please log in to access this page.')
-mail = Mail()
+_mail = Mail()
 bootstrap = Bootstrap()
 moment = Moment()
 babel = Babel()
@@ -32,17 +32,23 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db, render_as_batch=True)
     login.init_app(app)
-    mail.init_app(app)
+    _mail.init_app(app)
     bootstrap.init_app(app)
     moment.init_app(app)
     babel.init_app(app)
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
     app.redis = Redis.from_url(app.config['REDIS_URL'])
-    app.task_queue = rq.Queue('erp-crm-tasks', connection=app.redis)
+    app.task_queue = rq.Queue('teleios-tasks', connection=app.redis)
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
+
+    from app.fetchmail import bp as fetchmail_bp
+    app.register_blueprint(fetchmail_bp)
+
+    from app.mail import bp as mail_bp
+    app.register_blueprint(mail_bp)
 
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -68,7 +74,7 @@ def create_app(config_class=Config):
             mail_handler = SMTPHandler(
                 mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
                 fromaddr='no-reply@' + app.config['MAIL_SERVER'],
-                toaddrs=app.config['ADMINS'], subject='erp-crm Failure',
+                toaddrs=app.config['ADMINS'], subject='teleios Failure',
                 credentials=auth, secure=secure)
             mail_handler.setLevel(logging.ERROR)
             app.logger.addHandler(mail_handler)
@@ -80,7 +86,7 @@ def create_app(config_class=Config):
         else:
             if not os.path.exists('logs'):
                 os.mkdir('logs')
-            file_handler = RotatingFileHandler('logs/erp-crm.log',
+            file_handler = RotatingFileHandler('logs/teleios.log',
                                                maxBytes=10240, backupCount=10)
             file_handler.setFormatter(logging.Formatter(
                 '%(asctime)s %(levelname)s: %(message)s '
@@ -89,7 +95,7 @@ def create_app(config_class=Config):
             app.logger.addHandler(file_handler)
 
         app.logger.setLevel(logging.INFO)
-        app.logger.info('erp-crm startup')
+        app.logger.info('teleios startup')
 
     return app
 
@@ -100,3 +106,8 @@ def get_locale():
 
 
 from app import models
+from app.main import models
+from app.auth.models import user
+from app.fetchmail.models import fetchmail
+from app.mail.models import mail, message
+

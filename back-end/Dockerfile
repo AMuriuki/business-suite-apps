@@ -1,8 +1,8 @@
 FROM python:3.6-alpine
 
-RUN adduser -D erp-crm
+RUN adduser -D teleios
 
-WORKDIR /home/erp-crm
+WORKDIR /home/teleios
 
 COPY requirements.txt requirements.txt
 RUN python -m venv venv
@@ -11,13 +11,13 @@ RUN venv/bin/pip install gunicorn pymysql
 
 COPY app app
 COPY migrations migrations
-COPY erp-crm.py config.py boot.sh ./
+COPY teleios.py config.py boot.sh ./
 RUN chmod a+x boot.sh
 
-ENV FLASK_APP erp-crm.py
+ENV FLASK_APP teleios.py
 
-RUN chown -R erp-crm:erp-crm ./
-USER erp-crm
+RUN chown -R teleios:teleios ./
+USER teleios
 
 EXPOSE 5000
 ENTRYPOINT ["./boot.sh"]

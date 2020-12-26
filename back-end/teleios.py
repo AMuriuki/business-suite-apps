@@ -1,5 +1,5 @@
 from app import create_app, db, cli
-from app.auth.models import User
+from app.auth.models.user import User
 
 app = create_app()
 cli.register(app)

@@ -1,1 +1,1 @@
-FLASK_APP=erp-crm.py
+FLASK_APP=teleios.py

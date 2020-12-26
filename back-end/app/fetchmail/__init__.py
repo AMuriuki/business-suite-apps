@@ -3,7 +3,7 @@
 
 from flask import Blueprint
 
-bp = Blueprint('auth', __name__)
+bp = Blueprint('fetchmail', __name__)
 
-from app.auth import routes
+from app.fetchmail import routes
  

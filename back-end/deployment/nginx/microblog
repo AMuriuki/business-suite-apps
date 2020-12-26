@@ -13,12 +13,12 @@ server {
     server_name _;
 
     # location of the self-signed SSL certificate
-    ssl_certificate /home/ubuntu/erp-crm/certs/cert.pem;
-    ssl_certificate_key /home/ubuntu/erp-crm/certs/key.pem;
+    ssl_certificate /home/ubuntu/teleios/certs/cert.pem;
+    ssl_certificate_key /home/ubuntu/teleios/certs/key.pem;
 
     # write access and error logs to /var/log
-    access_log /var/log/erp-crm_access.log;
-    error_log /var/log/erp-crm_error.log;
+    access_log /var/log/teleios_access.log;
+    error_log /var/log/teleios_error.log;
 
     location / {
         # forward application requests to the gunicorn server
@@ -31,7 +31,7 @@ server {
 
     location /static {
         # handle static files directly, without forwarding to the application
-        alias /home/ubuntu/erp-crm/app/static;
+        alias /home/ubuntu/teleios/app/static;
         expires 30d;
     }
 }

@@ -31,8 +31,8 @@ msgid "Error: the translation service failed."
 msgstr "Error el servicio de traducciones ha fallado."
 
 #: app/auth/email.py:8
-msgid "[erp-crm] Reset Your Password"
-msgstr "[erp-crm] Nueva Contraseña"
+msgid "[teleios] Reset Your Password"
+msgstr "[teleios] Nueva Contraseña"
 
 #: app/auth/forms.py:10 app/auth/forms.py:17 app/main/forms.py:10
 msgid "Username"
@@ -171,8 +171,8 @@ msgid "Translate"
 msgstr "Traducir"
 
 #: app/templates/base.html:4
-msgid "Welcome to erp-crm"
-msgstr "Bienvenido a erp-crm"
+msgid "Welcome to teleios"
+msgstr "Bienvenido a teleios"
 
 #: app/templates/base.html:21
 msgid "Home"

@@ -6,7 +6,7 @@ from app import db
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm, \
     ResetPasswordRequestForm, ResetPasswordForm
-from app.auth.models import User
+from app.auth.models.user import User
 from app.auth.email import send_password_reset_email
 from sqlalchemy import or_
 
@@ -27,7 +27,7 @@ def login():
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('main.index')
         return redirect(next_page)
-    return render_template('auth/login.html', title=_('ERP-CRM | Sign In'), form=form)
+    return render_template('auth/login.html', title=_('teleios | Sign In'), form=form)
 
 
 @bp.route('/logout')

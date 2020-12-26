@@ -10,4 +10,4 @@ while true; do
     sleep 5
 done
 flask translate compile
-exec gunicorn -b :5000 --access-logfile - --error-logfile - erp-crm:app
+exec gunicorn -b :5000 --access-logfile - --error-logfile - teleios:app

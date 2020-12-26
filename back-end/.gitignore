@@ -37,4 +37,4 @@ nosetests.xml
 
 venv
 app.db
-erp-crm.log*
+teleios.log*
