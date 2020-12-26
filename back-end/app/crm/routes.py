@@ -6,5 +6,5 @@ from app.crm import bp
 
 
 @bp.route('/kanban', methods=['GET', 'POST'])
-def crm():
+def kanban():
     return render_template('crm/kanban.html', title=_('CRM | Kanban Boards'))
