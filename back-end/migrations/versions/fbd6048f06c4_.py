@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 1e149ba9c0ba
+Revision ID: fbd6048f06c4
 Revises: 
-Create Date: 2020-12-26 23:46:25.928188
+Create Date: 2020-12-28 14:14:59.056758
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1e149ba9c0ba'
+revision = 'fbd6048f06c4'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -26,12 +26,13 @@ def upgrade():
     sa.Column('Server Name', sa.String(length=128), nullable=True),
     sa.Column('port', sa.Integer(), nullable=True),
     sa.Column('Server Type', sa.Enum('pop', 'imap', 'local', name='servertypeenum'), nullable=False),
-    sa.Column('SSL/TLS', sa.String(length=128), nullable=True),
+    sa.Column('SSL/TLS', sa.Boolean(), nullable=True),
     sa.Column('Keep Attachments', sa.Boolean(), nullable=True),
-    sa.Column('Keep original', sa.String(length=128), nullable=True),
+    sa.Column('Keep original', sa.Boolean(), nullable=True),
     sa.Column('Last Fetch Date', sa.DateTime(), nullable=True),
     sa.Column('Username', sa.String(length=128), nullable=True),
     sa.Column('password', sa.String(length=128), nullable=True),
+    sa.Column('object_id', sa.Integer(), nullable=True),
     sa.Column('Server Priority', sa.String(length=128), nullable=True),
     sa.Column('Configuration', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('id')
@@ -74,8 +75,10 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('sender_id', sa.Integer(), nullable=True),
     sa.Column('recipient_id', sa.Integer(), nullable=True),
+    sa.Column('fetchmailserver_id', sa.Integer(), nullable=True),
     sa.Column('body', sa.String(length=140), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['fetchmailserver_id'], ['fetchmail_server.id'], ),
     sa.ForeignKeyConstraint(['recipient_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['sender_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')

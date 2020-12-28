@@ -46,7 +46,7 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
                                         foreign_keys=Message.recipient_id,
                                         backref='recipient', lazy='dynamic')
     last_message_read_time = db.Column(db.DateTime)
-    notifications = db.relationship(Notification, backref='user',
+    notifications = db.relationship(Notification, foreign_keys=Notification.user_id, backref='user',
                                     lazy='dynamic')
     tasks = db.relationship(Task, backref='user', lazy='dynamic')
 

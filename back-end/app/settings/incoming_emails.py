@@ -17,7 +17,7 @@ mail.select('inbox')
 # it will return with its status and a list of ids
 status, data = mail.search(None, 'ALL')
 
-# the list returned is a list of bytes separated 
+# the list returned is a list of bytes separated
 mail_ids = []
 
 # go through the list splitting its blocks of bytes and appending to the mail_ids list
@@ -28,10 +28,10 @@ for block in data:
 
 # for every id fetch the email to extract its content
 for i in mail_ids:
-    # fetch the email given its id and format that you want the message to be 
+    # fetch the email given its id and format that you want the message to be
     status, data = mail.fetch(i, '(RFC822)')
 
-    # the content data at the '(RFC822)' format comes on 
+    # the content data at the '(RFC822)' format comes on
     # a list with a tuple with header, content, and the closing
     # byte b')'
     for response_part in data:
@@ -42,8 +42,8 @@ for i in mail_ids:
             # at the third
             message = email.message_from_bytes(response_part[1])
 
-            # with the content we can extract the info about 
-            # who sent the message and its subject 
+            # with the content we can extract the info about
+            # who sent the message and its subject
             mail_from = message['from']
             mail_subject = message['subject']
 
@@ -57,15 +57,6 @@ for i in mail_ids:
             else:
                 mail_content = message.get_payload()
 
-            print("From: "+ mail_from)
-            print("Subject: "+ str(mail_subject))
-            print("Content: "+ mail_content)
-
-
-
-
-
-
-
-            
-
+            print("From: " + mail_from)
+            print("Subject: " + str(mail_subject))
+            print("Content: " + mail_content)
