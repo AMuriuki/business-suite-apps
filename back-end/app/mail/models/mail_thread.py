@@ -12,27 +12,70 @@ import logging
 import pytz
 import dateutil
 import lxml
+import json
 
 from app.mail.tools import tools_mail
 from collections import namedtuple
 from lxml import etree
+
+from app import db
+from app.mail.models.message import MailMessage
 
 
 _logger = logging.getLogger(__name__)
 
 
 class MailThreadMixin(object):
-    """MailThreadMixin is meant to be inherited by any model 
-    that needs to act as a discussion topic on which messages 
+    """MailThreadMixin is meant to be inherited by any model
+    that needs to act as a discussion topic on which messages
     can be attached."""
 
     _Attachment = namedtuple('Attachment', ('fname', 'content', 'info'))
 
     @classmethod
+    def message_route(self, message, message_dict, model=None, thread_id=None, custom_values=None):
+        """Attempt to figure out the correct target model, thread_id,
+        custom_values and user_id to use for an incoming message.
+        Multiple values may be returned, if a message had multiple
+        recipients matching existing mail aliases, for example:
+
+        The following heuristics are used, in this order:
+         * if the message replies to an existing thread by having a Message-Id
+           that matches an existing message.id, we take the original message
+           model/thread_id pair and ignore the custom_value as no creation will
+           take place;
+         * look for a mail_alias entry matching the message recipients and use
+           the corresponding model, thread_id, custom_values and user_id. This
+           could lead to a thread update or creation depending on the alias;
+         * fallback on provided ```model```, ```thread_id``` and ```custom_values```;
+         * raise an exception as no route has been found
+
+        :param string message: an email.message instance
+        :param dict message_dict: dictionary holding parsed message variables
+        :param string model: the fallback model to use if the message does not match
+            any of the currently configured mail aliases (may be None if a matching
+            alias is supposed to be present)
+        :type dict custom_values: optional dictionary of default field values
+            to pass to ```message_new``` if a new record needs to be created.
+            Ignored if the thread record already exists, and also if a matching
+            mail_alias was found (aliases define their own defaults)
+        :param int thread_id: optional ID of the record/thread from ```model``` to 
+            which this mail should be attached and does not match any mail alias.
+        :return: list of routes [(model, thread_id, custom_values, user_id, alias)]
+
+        :raises: ValueError, TypeError
+        """
+        if not isinstance(message, Message):
+            raise TypeError(
+                'message must be an email.message.Message at this point')
+        # catchall_alias =
+        # TODO: To be continued...
+
+    @classmethod
     def message_process(self, model, message, custom_values=None, save_original=False, strip_attachments=False, thread_id=None):
         """Process an incoming RFC2822 email message, relying on ```mail.message.parse()``` for the parsing operation, and ```message_route()``` to figure out the target model.
 
-        Once the target model is known, its ```message_new``` method is called with the new message (if the thread record did not exist) or its ```message_update``` method (if it did)."""
+        Once the target model is known, its ```message_new``` method is called with the new message(if the thread record did not exist) or its ```message_update``` method(if it did)."""
 
         # extract message bytes - we are forced to pass the message as binary because
         # we don't know its encoding until we parse its headers
@@ -48,12 +91,18 @@ class MailThreadMixin(object):
         if strip_attachments:
             msg_dict.pop('attachments', None)
 
-        existing_msg_ids = self.search(
-            [('message_id', '=', msg_dict['message_id'])], limit=1)
-        if existing_msg_ids:
+        existing_msg_id = db.session.query(MailMessage).filter_by(
+            message_id=msg_dict['message_id']).first()
+
+        if existing_msg_id:
             _logger.info('Ignored mail from %s to %s with Message-Id %s: found duplicated Message-Id during processing',
                          msg_dict.get('email_from'), msg_dict.get('to'), msg_dict.get('message_id'))
             return False
+        return msg_dict
+
+        # TODO: Uncomment only when need be.
+        # routes = self.message_route(
+        #     message, msg_dict, model, thread_id, custom_values)
 
     @classmethod
     def _message_parse_extract_payload_postprocess(self, message, payload_dict):
@@ -178,7 +227,7 @@ class MailThreadMixin(object):
                 else:
                     attachments.append(self._Attachment(
                         filename or 'attachment', part.get_payload(decode=True), {}))
-
+                
         return self._message_parse_extract_payload_postprocess(message, {'body': body, 'attachments': attachments})
 
     @classmethod
@@ -186,8 +235,8 @@ class MailThreadMixin(object):
         """ Parse email and extract bounce information to be used in future
             processing.
 
-            :param email_message: an email.message instance;
-            :param message_dict: dictionary holding already-parsed values and in
+            : param email_message: an email.message instance;
+            : param message_dict: dictionary holding already-parsed values and in
                 which bounce-related values will be added;
             """
 
@@ -236,8 +285,8 @@ class MailThreadMixin(object):
     def message_parse(self, message, save_original=False):
         """Parse an email message representing an RFC-2822 email and returns a generic dict holding the message details.
 
-        :param message: email to parse
-        :return: A dict with the following structure, where each field may not be present if missing in original message::
+        : param message: email to parse
+        : return: A dict with the following structure, where each field may not be present if missing in original message: :
             {
                 'message_id': msg_id,
                 'subject': subject,
@@ -248,9 +297,9 @@ class MailThreadMixin(object):
                 'partner_ids': partners found based on recipients emails,
                 'body': unified_body,
                 'references': references,
-                'in_reply_to': in-reply-to,
+                'in_reply_to': in -reply-to,
                 'parent_id': parent message based on in_reply_to or references,
-                'internal': answer to an internal message (note),
+                'internal': answer to an internal message(note),
                 'date': date,
                 'attachments': [('file1', 'bytes'),
                                 ('file2', 'bytes')]
@@ -322,27 +371,26 @@ class MailThreadMixin(object):
             except Exception:
                 _logger.info(
                     'Failed to parse Date header %r in incoming mail with message-id %r, assuming current date/time.', message.get('Date'), message_id)
-                stored_date = datetime.datetime.now()
-            msg_dict['date'] = stored_date
+                stored_date = str(datetime.datetime.now())
+            msg_dict['date'] = message.get('Date')
 
         if msg_dict['in_reply_to']:
-            parent_ids = self.search(
-                [('message_id', '=', msg_dict['in_reply_to'])], limit=1)
-            if parent_ids:
-                msg_dict['parent_id'] = parent_ids.id
-                msg_dict['internal'] = parent_ids.subtype_id and parent_ids.subtype_id.internal or False
+            reply_message = db.session.query(MailMessage).filter_by(
+                message_id=msg_dict['in_reply_to']).all()
+            if reply_message:
+                msg_dict['parent_id'] = reply_message.id
+                # msg_dict['internal'] = parent_ids.subtype_id and parent_ids.subtype_id.internal or False
 
-        if msg_dict['references'] and 'parent_id' not in msg_dict:
-            references_msg_id_list = tools_mail.mail_header_msgid_re.findall(
-                msg_dict['references'])
-            parent_ids = self.search(
-                [('message_id', 'in', [x.strip() for x in references_msg_id_list])], limit=1)
-            if parent_ids:
-                msg_dict['parent_id'] = parent_ids.id
-                msg_dict['internal'] = parent_ids.subtype_id and parent_ids.subtype_id.internal or False
+        # if msg_dict['references'] and 'parent_id' not in msg_dict:
+        #     references_msg_id_list = tools_mail.mail_header_msgid_re.findall(
+        #         msg_dict['references'])
+        #     parent_ids = self.search(
+        #         [('message_id', 'in', [x.strip() for x in references_msg_id_list])], limit=1)
+        #     if parent_ids:
+        #         msg_dict['parent_id'] = parent_ids.id
+        #         msg_dict['internal'] = parent_ids.subtype_id and parent_ids.subtype_id.internal or False
 
         msg_dict.update(self._message_parse_extract_payload(
             message, save_original=save_original))
         msg_dict.update(self._message_parse_extract_bounce(message, msg_dict))
-        print(msg_dict)
         return msg_dict

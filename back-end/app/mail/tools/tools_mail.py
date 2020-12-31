@@ -7,8 +7,9 @@ import collections
 from lxml.html import clean
 from lxml import etree
 
+from email.header import decode_header, Header
 from email.utils import getaddresses
-from app.mail.tools import misc
+from app.mail.tools import misc, pycompat
 
 _logger = logging.getLogger(__name__)
 
@@ -31,6 +32,8 @@ safe_attrs = clean.defs.safe_attrs | frozenset(
      'data-oe-model', 'data-oe-id', 'data-oe-field', 'data-oe-type', 'data-oe-expression', 'data-oe-translation-id', 'data-oe-nodeid',
      'data-publish', 'data-id', 'data-res_id', 'data-interval', 'data-member_id', 'data-scroll-background-ratio', 'data-view-id',
      ])
+
+mail_header_msgid_re = re.compile('<[^<>]+>')
 
 
 email_addr_escapes_re = re.compile(r'[\\"]')
@@ -70,6 +73,24 @@ def get_encodings(hint_encoding='utf-8'):
         prefenc = fallbacks.get(prefenc.lower())
         if prefenc:
             yield prefenc
+
+
+def decode_smtp_header(smtp_header):
+    """
+    Returns unicode() string conversion of the given encoded smtp header
+    text. email.header decode_header method returns a decoded string and its
+    charset for each deocded part of the header. This message unicodes the 
+    decoded header and join them in a complete string.
+    """
+    if isinstance(smtp_header, Header):
+        smtp_header = ustr(smtp_header)
+    if smtp_header:
+        text = decode_header(smtp_header.replace('\r', ''))
+        # The joining space will not be needed as of python 3.3
+        # See https://github.com/python/cpython/commit/07ea53cb218812404cdbde820647ce6e4b2d0f8e
+        sep = ' ' if pycompat.PY2 else ''
+        return sep.join([ustr(x[0], x[1]) for x in text])
+    return u''
 
 
 def decode_message_header(message, header, separator=' '):
@@ -511,3 +532,26 @@ def html_sanitize(src, silent=True, sanitize_tags=True, sanitize_attributes=Fals
         cleaned = cleaned[5:-6]
 
     return cleaned
+
+
+def email_split(text):
+    """ Return a list of the email addresses found in ``text`` """
+    if not text:
+        return []
+    return [email for (name, email) in email_split_tuples(text)]
+
+
+def email_normalize(text):
+    """ Sanitize and standardize email address entries.
+        A normalized email is considered as :
+        - having a left part + @ + a right part (the domain can be without '.something')
+        - being lower case
+        - having no name before the address. Typically, having no 'Name <>'
+        Ex:
+        - Possible Input Email : 'Name <NaMe@DoMaIn.CoM>'
+        - Normalized Output Email : 'name@domain.com'
+    """
+    emails = email_split(text)
+    if not emails or len(emails) != 1:
+        return False
+    return emails[0].lower()

@@ -13,7 +13,8 @@ import rq
 from app import db, login
 from app.search import add_to_index, remove_from_index, query_index
 from app.main.models import Task, Notification
-from app.mail.models.message import Message
+from app.mail.models.message import MailMessage
+from app.mail.models.mail_alias import Alias
 from app.models import SearchableMixin, PaginatedAPIMixin
 
 
@@ -39,16 +40,18 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
         primaryjoin=(followers.c.follower_id == id),
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    messages_sent = db.relationship(Message,
-                                    foreign_keys=Message.sender_id,
+    messages_sent = db.relationship(MailMessage,
+                                    foreign_keys=MailMessage.sender_id,
                                     backref='author', lazy='dynamic')
-    messages_received = db.relationship(Message,
-                                        foreign_keys=Message.recipient_id,
+    messages_received = db.relationship(MailMessage,
+                                        foreign_keys=MailMessage.recipient_id,
                                         backref='recipient', lazy='dynamic')
     last_message_read_time = db.Column(db.DateTime)
     notifications = db.relationship(Notification, foreign_keys=Notification.user_id, backref='user',
                                     lazy='dynamic')
     tasks = db.relationship(Task, backref='user', lazy='dynamic')
+    alias = db.relationship(
+        Alias, foreign_keys=Alias.alias_user_id, backref='owner', lazy='dynamic')
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -93,8 +96,8 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
 
     def new_messages(self):
         last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
-        return Message.query.filter_by(recipient=self).filter(
-            Message.timestamp > last_read_time).count()
+        return MailMessage.query.filter_by(recipient=self).filter(
+            MailMessage.timestamp > last_read_time).count()
 
     def add_notification(self, name, data):
         self.notifications.filter_by(name=name).delete()

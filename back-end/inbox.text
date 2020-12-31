@@ -1,0 +1,37 @@
+[
+    {
+        "message": "email",
+        "message_id": "<2B1D85B7-BDFE-4B96-848E-69BC092E472C@gmail.com>",
+        "subject": "[nairobilug] AMD Ryzen 5000 and ARM M1 processing chips",
+        "email_from": "\"Martin Akolo Chiteri\" <martin.chiteri@gmail.com>",
+        "from": "\"Martin Akolo Chiteri\" <martin.chiteri@gmail.com>",
+        "cc": "",
+        "recipients": "arnoldnderitu@gmail.com,\"nairobi-gnu\" <nairobi-gnu@googlegroups.com>",
+        "to": "arnoldnderitu@gmail.com,\"nairobi-gnu\" <nairobi-gnu@googlegroups.com>",
+        "references": "",
+        "in_reply_to": "",
+        "date": "Fri, 25 Dec 2020 09:51:03 -0700",
+        "body": "<body dir=\"auto\">Hi folks, <div><br></div><div>I was a little surprised to see no mention on the list of these two phenomenal CPUs eating Intel’s lunch on the desktop and mobile devices. They are both cheaper, consume less power and offer substantially better performance than anything else out there.</div><div><br></div><div>AMD Ryzen 5000: <a href=\"https://www.pcworld.com/article/3587109/ryzen-5000-review.html?fbclid=IwAR3TCVnXUxy17FNPi8trrwxQiAyBgnqEYZihnKttsCc3icsGN4KG9P5sLb4\">https://www.pcworld.com/article/3587109/ryzen-5000-review.html</a> </div><div><br></div><div>Apple M1 chip: <a href=\"https://www.singhkays.com/blog/apple-silicon-m1-black-magic/\">https://www.singhkays.com/blog/apple-silicon-m1-black-magic/</a> </div><div><br></div><div>Someone also compared the $800 Apple Mac mini with an M1 ARM processor with 16GB RAM to a $14,000 Mac Pro with an Intel processor and 192GB RAM. The Mac mini is faster, at least at compiling code among other things <a href=\"https://youtu.be/Ql3Qg5QD_iU\">https://youtu.be/Ql3Qg5QD_iU</a> </div><div><br></div><div>Merry Christmas!<br><br><div dir=\"ltr\">Martin.</div></div></body><p></p><p data-o-mail-quote=\"1\">\r\n\r\n-- <br data-o-mail-quote=\"1\">\r\nYou received this message because you are subscribed to the Google Groups \"Nairobi GNU/Linux User Group\" group.<br data-o-mail-quote=\"1\">\r\nTo unsubscribe from this group and stop receiving emails from it, send an email to <a href=\"mailto:nairobi-gnu+unsubscribe@googlegroups.com\" data-o-mail-quote=\"1\">nairobi-gnu+unsubscribe@googlegroups.com</a>.<br data-o-mail-quote=\"1\">\r\nTo view this discussion on the web visit <a href=\"https://groups.google.com/d/msgid/nairobi-gnu/2B1D85B7-BDFE-4B96-848E-69BC092E472C%40gmail.com?utm_medium=email&amp;utm_source=footer\" data-o-mail-quote=\"1\">https://groups.google.com/d/msgid/nairobi-gnu/2B1D85B7-BDFE-4B96-848E-69BC092E472C%40gmail.com</a>.<br data-o-mail-quote=\"1\">\r\n</p>",
+        "attachments": [],
+        "bounced_email": false,
+        "bounced_partner": null,
+        "bounced_msg_id": false,
+        "bounced_message": false
+    },
+    {
+        "message": "email",
+        "message_id": "<86bledrfga.fsf@bonfacemunyoki.com>",
+        "subject": "Re: [nairobilug] AMD Ryzen 5000 and ARM M1 processing chips",
+        "email_from": "\"Bonface Munyoki K.\" <me@bonfacemunyoki.com>",
+        "from": "\"Bonface Munyoki K.\" <me@bonfacemunyoki.com>",
+        "cc": "",
+        "recipients": "arnoldnderitu@gmail.com,nairobi-gnu@googlegroups.com",
+        "to": "arnoldnderitu@gmail.com,nairobi-gnu@googlegroups.com",
+        "references": "<2B1D85B7-BDFE-4B96-848E-69BC092E472C@gmail.com>",
+        "in_reply_to": "<2B1D85B7-BDFE-4B96-848E-69BC092E472C@gmail.com> (Martin Akolo\r\n\tChiteri's message of \"Fri, 25 Dec 2020 09:51:03 -0700\")",
+        "date": "Mon, 28 Dec 2020 01:48:16 +0300",
+        "body": "\n<pre>\r\nHi Martin!\r\n\r\nMartin Akolo Chiteri &lt;martin.chiteri@gmail.com&gt;\r\nwrites:\r\n\r\n&gt; Hi folks, \r\n&gt;\r\n&gt; I was a little surprised to see no mention on the\r\n&gt; list of these two phenomenal CPUs eating Intel’s\r\n&gt; lunch on the desktop and mobile devices. They are\r\n&gt; both cheaper, consume less power and offer\r\n&gt; substantially better performance than anything\r\n&gt; else out there.\r\n&gt;\r\n&gt; AMD Ryzen 5000: https://www.pcworld.com/article/3587109/ryzen-5000-review.html \r\n&gt;\r\n\r\nWell, problem I've seen in a bunch of ML's is that\r\nit takes some time for some of these chips to get\r\nthere firmware updated on the Linux Kernel, and\r\neven more time for them to get into Linux Libre(if\r\nsomeone works on it).\r\n\r\nOn the plus side, I agree with you that ARM\r\nprocessors are generally cheaper, since while\r\nresearching for some PC-assembly a while back,\r\nI(or rather &quot;we&quot;-- wasn't alone here) went with an\r\nAMD[0] cheap which was cheaper(at the time) than\r\nit's intel counterparts(can't seem to find what we\r\ncompared this with).\r\n\r\n&gt; Apple M1 chip: https://www.singhkays.com/blog/apple-silicon-m1-black-magic/ \r\n&gt;\r\n\r\nI've shied away from Apple(they take some serious\r\nbites at your freedoms[1]).\r\n\r\n&gt; Someone also compared the $800 Apple Mac mini with\r\n&gt; an M1 ARM processor with 16GB RAM to a $14,000 Mac\r\n&gt; Pro with an Intel processor and 192GB RAM. The Mac\r\n&gt; mini is faster, at least at compiling code among\r\n&gt; other things https://youtu.be/Ql3Qg5QD_iU\r\n&gt;\r\n\r\nThings seem encouraging for ARM processors\r\n:). Curious to see how this plays out. Hopefully,\r\nwe the consumers, will gain from this ;)\r\n\r\n\r\n[0] https://www.newegg.com/amd-ryzen-5-2600/p/N82E16819113496\r\n[1] https://www.fsf.org/campaigns/apple\r\n\r\n-- \r\nBonface M. K. &lt;https://www.bonfacemunyoki.com&gt;\r\nHumble GNU Emacs User / Bearer of scheme-y parens\r\nCurator: &lt;https://upbookclub.com&gt; / Twitter: @BonfaceKilz\r\nGPG Key: D4F09EB110177E03C28E2FE1F5BBAE1E0392253F\r\n\r\n-- \r\nYou received this message because you are subscribed to the Google Groups &quot;Nairobi GNU/Linux User Group&quot; group.\r\nTo unsubscribe from this group and stop receiving emails from it, send an email to nairobi-gnu+unsubscribe@googlegroups.com.\r\nTo view this discussion on the web visit https://groups.google.com/d/msgid/nairobi-gnu/86bledrfga.fsf%40bonfacemunyoki.com.\r\n</pre>\n",
+        "attachments": [
+            [
+                "signature.asc",
+                

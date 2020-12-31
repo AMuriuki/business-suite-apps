@@ -13,8 +13,17 @@ from elasticsearch import Elasticsearch
 from redis import Redis
 import rq
 from config import Config
+from sqlalchemy import MetaData
 
-db = SQLAlchemy()
+naming_convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(column_0_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+
+db = SQLAlchemy(metadata=MetaData(naming_convention=naming_convention))
 migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
@@ -105,9 +114,8 @@ def get_locale():
     return request.accept_languages.best_match(current_app.config['LANGUAGES'])
 
 
-from app import models
-from app.main import models
-from app.auth.models import user
-from app.fetchmail.models import fetchmail
 from app.mail.models import mail, message
-
+from app.fetchmail.models import fetchmail
+from app.auth.models import user
+from app.main import models
+from app import models

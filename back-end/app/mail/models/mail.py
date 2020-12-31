@@ -2,7 +2,7 @@
 # Part of Teleios. See LICENSE file for full copyright and licensing details.
 
 from app import db
-from app.mail.models.message import Message
+from app.mail.models.message import MailMessage
 
 
 class Mail(db.Model):

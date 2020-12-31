@@ -4,6 +4,7 @@
 import logging
 import poplib
 import enum
+import json
 from imaplib import IMAP4, IMAP4_SSL
 from poplib import POP3, POP3_SSL
 from datetime import datetime, timedelta
@@ -11,7 +12,7 @@ from datetime import datetime, timedelta
 from app import db
 from app.models import SearchableMixin
 from app.mail.models.mail_thread import MailThreadMixin
-from app.mail.models.message import Message
+from app.mail.models.message import MailMessage
 
 
 _logger = logging.getLogger(__name__)
@@ -76,12 +77,12 @@ class FetchmailServer(MailThreadMixin, db.Model):
     # Process each incoming mail as part of a conversation corresponding to this document type.
     # This will create new documents for new conversations,
     # or attach follow-up emails to the existing conversations (documents)
-    object_id = db.Column(db.Integer)
+    record_id = db.Column(db.Integer, db.ForeignKey('record.id'))
 
     # Defines the order of processing, lower values mean higher priority", default=5)
     priority = db.Column(db.String(128), name="Server Priority")
     messages = db.relationship(
-        Message, foreign_keys=Message.fetchmailserver_id, backref="Messages")
+        MailMessage, foreign_keys=MailMessage.fetchmailserver_id, backref="Messages")
     configuration = db.Column(db.Text(), name="Configuration")
     # script
 
@@ -112,20 +113,30 @@ class FetchmailServer(MailThreadMixin, db.Model):
         imap_server = None
         pop_server = None
         if self.server_type.value == 'IMAP Server':
+            print("Server Type is IMAP Server")
             _logger.info('start checking for new emails on %s server %s',
                          self.server_type.value, self.name)
             try:
                 imap_server = self.connect()
                 imap_server.select()
                 result, data = imap_server.search(None, '(UNSEEN)')
+                msgs = []
                 for num in data[0].split():
                     res_id = None
                     result, data = imap_server.fetch(num, '(RFC822)')
                     imap_server.store(num, '-FLAGS', '\\Seen')
                     try:
-                        res_id = MailThreadMixin.message_process(self.object_id, data[0][1], save_original=self.original, strip_attachments=(not self.attach))
-                        print (res_id)
+                        # res_id = MailThreadMixin.message_process(
+                        #     self.record_id, data[0][1], save_original=self.original, strip_attachments=(not self.attach))
+                        msg_dict = MailThreadMixin.message_process(
+                            self.record_id, data[0][1], save_original=self.original, strip_attachments=(not self.attach))
+                        msgs.append(msg_dict)
                     except Exception as e:
                         print(e)
+                if msgs:
+                    with open("inbox.json", "w", encoding='utf-8') as outfile:
+                            json.dump(msgs, outfile,
+                                      ensure_ascii=False, indent=4)
+                    print("success")
             except Exception as e:
                 print(e)
