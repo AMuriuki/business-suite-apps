@@ -72,6 +72,7 @@ class FetchmailServer(MailThreadMixin, db.Model):
 
     date = db.Column(db.DateTime, name="Last Fetch Date")
     user = db.Column(db.String(128), name="Username")
+    # user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     password = db.Column(db.String(128))
 
     # Process each incoming mail as part of a conversation corresponding to this document type.
@@ -81,8 +82,7 @@ class FetchmailServer(MailThreadMixin, db.Model):
 
     # Defines the order of processing, lower values mean higher priority", default=5)
     priority = db.Column(db.String(128), name="Server Priority")
-    messages = db.relationship(
-        MailMessage, foreign_keys=MailMessage.fetchmailserver_id, backref="Messages")
+    messages = db.relationship('MailMessage', backref="Messages", lazy='dynamic')
     configuration = db.Column(db.Text(), name="Configuration")
     # script
 
@@ -122,21 +122,25 @@ class FetchmailServer(MailThreadMixin, db.Model):
                 result, data = imap_server.search(None, '(UNSEEN)')
                 msgs = []
                 for num in data[0].split():
-                    res_id = None
+                    thread_id = None
                     result, data = imap_server.fetch(num, '(RFC822)')
                     imap_server.store(num, '-FLAGS', '\\Seen')
                     try:
-                        # res_id = MailThreadMixin.message_process(
-                        #     self.record_id, data[0][1], save_original=self.original, strip_attachments=(not self.attach))
-                        msg_dict = MailThreadMixin.message_process(
+                        # process incoming RFC2822 email message and determine target model
+                        thread_id = MailThreadMixin.message_process(
                             self.record_id, data[0][1], save_original=self.original, strip_attachments=(not self.attach))
-                        msgs.append(msg_dict)
+
+                        # msg_dict = MailThreadMixin.message_process(
+                        #     self.record_id, data[0][1], save_original=self.original, strip_attachments=(not self.attach))
+                        # msgs.append(msg_dict)
                     except Exception as e:
                         print(e)
                 if msgs:
-                    with open("inbox.json", "w", encoding='utf-8') as outfile:
-                            json.dump(msgs, outfile,
-                                      ensure_ascii=False, indent=4)
+                    with open("inbox.txt", "w", encoding='utf-8') as outfile:
+                        for msg in msgs:
+                            outfile.write('%s\n' % msg)
+                            # json.dump(msgs, outfile,
+                            #           ensure_ascii=False, indent=4)
                     print("success")
             except Exception as e:
                 print(e)

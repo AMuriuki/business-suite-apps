@@ -12,17 +12,18 @@ import redis
 import rq
 from app import db, login
 from app.search import add_to_index, remove_from_index, query_index
-from app.mail.models.mail_alias import Alias
-from app.fetchmail.models.fetchmail import FetchmailServer
+from app.mail.models.mail_address import MailAddress
+from app.mail.models.message import MailMessage
 
 
 class Record(db.Model):
     id = db.Column(db.String(36), primary_key=True)
     name = db.Column(db.String(128), index=True)
-    alias = db.relationship(Alias, foreign_keys=Alias.alias_record_id,
-                            backref='record', lazy='dynamic')
-    fetchmailserver = db.relationship(FetchmailServer, foreign_keys=FetchmailServer.record_id,
-                            backref='fetchmail_record', lazy='dynamic')
+    addresses = db.relationship(
+        'MailAddress', backref='record', lazy='dynamic')
+    fetchmailserver = db.relationship(
+        'FetchmailServer', backref='fetchmail_record', lazy='dynamic')
+    messages = db.relationship('MailMessage', backref='thread', lazy='dynamic')
 
 
 class Task(db.Model):

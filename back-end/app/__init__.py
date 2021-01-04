@@ -56,6 +56,9 @@ def create_app(config_class=Config):
     from app.fetchmail import bp as fetchmail_bp
     app.register_blueprint(fetchmail_bp)
 
+    from app.settings import bp as settings_bp
+    app.register_blueprint(settings_bp, url_prefix='/settings')
+
     from app.mail import bp as mail_bp
     app.register_blueprint(mail_bp)
 
@@ -114,7 +117,7 @@ def get_locale():
     return request.accept_languages.best_match(current_app.config['LANGUAGES'])
 
 
-from app.mail.models import mail, message
+from app.mail.models import mail_address, mail_thread, message, mail
 from app.fetchmail.models import fetchmail
 from app.auth.models import user
 from app.main import models

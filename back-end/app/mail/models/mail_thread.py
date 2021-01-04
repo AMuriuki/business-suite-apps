@@ -13,6 +13,7 @@ import pytz
 import dateutil
 import lxml
 import json
+import socket
 
 from app.mail.tools import tools_mail
 from collections import namedtuple
@@ -20,6 +21,7 @@ from lxml import etree
 
 from app import db
 from app.mail.models.message import MailMessage
+from app.main.models import Record
 
 
 _logger = logging.getLogger(__name__)
@@ -37,45 +39,73 @@ class MailThreadMixin(object):
         """Attempt to figure out the correct target model, thread_id,
         custom_values and user_id to use for an incoming message.
         Multiple values may be returned, if a message had multiple
-        recipients matching existing mail aliases, for example:
+        recipients matching existing mail addresses, for example:
 
         The following heuristics are used, in this order:
          * if the message replies to an existing thread by having a Message-Id
            that matches an existing message.id, we take the original message
            model/thread_id pair and ignore the custom_value as no creation will
            take place;
-         * look for a mail_alias entry matching the message recipients and use
+         * look for a mail_address entry matching the message recipients and use
            the corresponding model, thread_id, custom_values and user_id. This
-           could lead to a thread update or creation depending on the alias;
+           could lead to a thread update or creation depending on the address;
          * fallback on provided ```model```, ```thread_id``` and ```custom_values```;
          * raise an exception as no route has been found
 
         :param string message: an email.message instance
         :param dict message_dict: dictionary holding parsed message variables
         :param string model: the fallback model to use if the message does not match
-            any of the currently configured mail aliases (may be None if a matching
-            alias is supposed to be present)
+            any of the currently configured mail addresses (may be None if a matching
+            address is supposed to be present)
         :type dict custom_values: optional dictionary of default field values
             to pass to ```message_new``` if a new record needs to be created.
             Ignored if the thread record already exists, and also if a matching
-            mail_alias was found (aliases define their own defaults)
+            mail_address was found (addresses define their own defaults)
         :param int thread_id: optional ID of the record/thread from ```model``` to 
-            which this mail should be attached and does not match any mail alias.
-        :return: list of routes [(model, thread_id, custom_values, user_id, alias)]
+            which this mail should be attached and does not match any mail address.
+        :return: list of routes [(model, thread_id, custom_values, user_id, address)]
 
         :raises: ValueError, TypeError
         """
         if not isinstance(message, Message):
             raise TypeError(
                 'message must be an email.message.Message at this point')
-        # catchall_alias =
-        # TODO: To be continued...
+        message = db.session.query(MailMessage).filter_by(
+            in_reply_to=message_dict['message_id']).first()
+        if message:
+            model = message.record_id
+
+            # get email message variables for future processing
+            local_hostname = socket.gethostname()
+            message_id = message_dict['message_id']
+
+            # TODO: To be continued...
 
     @classmethod
-    def message_process(self, model, message, custom_values=None, save_original=False, strip_attachments=False, thread_id=None):
-        """Process an incoming RFC2822 email message, relying on ```mail.message.parse()``` for the parsing operation, and ```message_route()``` to figure out the target model.
+    def message_process(self, record, message, custom_values=None,
+                        save_original=False, strip_attachments=False, thread_id=None):
+        """
+        Process an incoming RFC2822 email message, relying on 
+        ```message_parse()``` for the parsing operation, and 
+        ```message_route()``` to figure out the target model.
 
-        Once the target model is known, its ```message_new``` method is called with the new message(if the thread record did not exist) or its ```message_update``` method(if it did)."""
+        Once the target model is known, its ```message_new``` method 
+        is called with the new message(if the thread record did not 
+        exist) or its ```message_update``` method(if it did).
+
+        :param int record id: the corresponding record to use for fetchmail 
+            operation
+        :param message: source of the RFC2822 message
+        :type message: string xmlrpclibraryBinary
+        :type dict custom_values: optional dictionary of field values to pass
+            to ```message_new``` if a new record needs to be created. Ignored
+            if the thread's record already exists.
+        :param bool save_original: whether to keep a copy of the original email 
+            source attached to the message after it is imported.
+        :param bool strip_attachments: whether to strip all attachments before 
+            procesisng the message, in order to save some space.
+        :param int thread_id: optional ID of the thread from ```record```
+        """
 
         # extract message bytes - we are forced to pass the message as binary because
         # we don't know its encoding until we parse its headers
@@ -98,7 +128,13 @@ class MailThreadMixin(object):
             _logger.info('Ignored mail from %s to %s with Message-Id %s: found duplicated Message-Id during processing',
                          msg_dict.get('email_from'), msg_dict.get('to'), msg_dict.get('message_id'))
             return False
-        return msg_dict
+        message = MailMessage(subject=msg_dict['subject'], date=msg_dict['date'], body=msg_dict['body'], parent_id=msg_dict['parent_id'], message_id=msg_dict['message_id'], in_reply_to=msg_dict['in_reply_to'],
+                              fetchmailserver_id=self.id, timestamp=datetime.datetime.now(), record_id=record, message_type=msg_dict['message_type'], email_from=msg_dict['email_from'], recipients=msg_dict['recipients'])
+        db.session.add(message)
+
+        # find possible routes for the message
+        routes = self.message_route(
+            message, msg_dict, record, thread_id, custom_values)
 
         # TODO: Uncomment only when need be.
         # routes = self.message_route(
@@ -227,7 +263,7 @@ class MailThreadMixin(object):
                 else:
                     attachments.append(self._Attachment(
                         filename or 'attachment', part.get_payload(decode=True), {}))
-                
+
         return self._message_parse_extract_payload_postprocess(message, {'body': body, 'attachments': attachments})
 
     @classmethod
@@ -308,7 +344,7 @@ class MailThreadMixin(object):
 
         if not isinstance(message, Message):
             raise ValueError(_('Message should be a valid Message instance'))
-        msg_dict = {'message': 'email'}
+        msg_dict = {'message_type': 'email'}
 
         message_id = message.get('Message-Id')
 
@@ -394,3 +430,27 @@ class MailThreadMixin(object):
             message, save_original=save_original))
         msg_dict.update(self._message_parse_extract_bounce(message, msg_dict))
         return msg_dict
+
+    @classmethod
+    def _mail_find_partner_from_emails(self, email, records=None, force_create=False):
+        """
+        Utility method to find partners from email addresses. If no partner is
+        found, create new partners if force_create is enabled. Search heuristics
+
+         * 1: check in records (record set) followers if records is mail_thread 
+              enabled and if check_followers parameter is enabled;
+         * 2: search for partners with user;
+         * 3: search for partners;
+
+        :param records: record set on which to check followers
+        :param list emails: list of email addresses for finding partner;
+        :param boolean force_create: create a new partner if not found
+
+        :return list partners: a list of partner records ordered as given emails.
+          If no partner has been found and/or created for given emails its
+          matching partner is an empty record.
+        """
+        if records and issubclass(type(Record)):
+            followers = records.mapped('message_partner_ids')
+        else:
+            followers = self  # TODO: To be continued

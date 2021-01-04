@@ -15,7 +15,62 @@ from app.search import add_to_index, remove_from_index, query_index
 
 
 class BasemodelMixin(object):
-    pass
+    @classmethod
+    def _mapped_func(self, func):
+        """
+        Apply function ```func``` on all records in ```self```, and
+        return the result as a list of records (if ```func``` returns
+        recordsets)
+        """
+        if self:
+            vals = [func(rec) for rec in self]
+            if isinstance(vals[0], BasemodelMixin):
+                return vals[0].union(*vals)
+            return vals
+        else:
+            vals = func(self)
+            return vals if isinstance(vals, BasemodelMixin) else []
+
+    @classmethod
+    def mapped(self, func):
+        """
+        Apply function ```func``` on all records in ```self```, and return the 
+        resutl as a list or a recordset (if ```func``` returns recordsets). In 
+        the latter case, the order of the returned recordset is arbitrary.
+
+        :param func: a function or a dot-separated sequence of field names
+        :type func: callable or str
+        :return: self if func is falsy, result of func applied to all ```self```
+         records.
+        :rtype: list of recordset
+
+        .. code-block:: python3
+
+            # returns a list of summing two fields for each record in the set
+            records.mapped(lambda rL r.field1 + r.field2)
+
+        The provided function can be a string to get field values:
+
+        .. code-block:: python3
+
+            # returns a list of names
+            records.mapped('name')
+
+            # returns a recordset of partners
+            records.mapped('partner_id.bank_ids')
+
+            # returns the union of all partners banks, with duplicates removed
+            records.mapped('partner_id.bank_ids')
+        """
+        if not func:
+            return self
+        if isinstance(func, str):
+            recs = self
+            for name in func.split('.'):
+                recs = recs._fields[name].mapped(recs)
+            return recs
+        else:
+            return self._mapped_func(func)
 
 
 class SearchableMixin(object):
