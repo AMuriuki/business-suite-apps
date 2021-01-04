@@ -2,7 +2,8 @@ from app import create_app, db, cli
 from app.auth.models.user import User
 from flask import url_for
 from datetime import datetime
-from app.auth.models.user import User
+from app.auth.models.user import User, Role
+from flask_migrate import Migrate, upgrade
 
 app = create_app()
 cli.register(app)
@@ -22,3 +23,13 @@ def fetchmail():
     # db.session.commit()
     # return url_for('fetchmail.fetchmail')
     return "success"
+
+
+@app.cli.command()
+def deploy():
+    """Run deployment tasks."""
+    # migrate database to latest revision
+    upgrade()
+
+    # create or update user roles
+    Role.insert_roles()

@@ -10,7 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import redis
 import rq
-from app import db, login
+from app import db, login_manager
 from app.search import add_to_index, remove_from_index, query_index
 from app.mail.models.mail_address import MailAddress
 from app.mail.models.message import MailMessage

@@ -22,4 +22,5 @@ class Config(object):
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
     REDIS_URL = os.environ.get('REDIS_URL') or 'redis://'
     POSTS_PER_PAGE = 25
+    TELEIOS_ADMIN = os.environ.get('TELEIOS_ADMIN')
     # SERVER_NAME = '127.0.0.1:5000'

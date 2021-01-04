@@ -25,9 +25,9 @@ naming_convention = {
 
 db = SQLAlchemy(metadata=MetaData(naming_convention=naming_convention))
 migrate = Migrate()
-login = LoginManager()
-login.login_view = 'auth.login'
-login.login_message = _l('Please log in to access this page.')
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
+login_manager.login_message = _l('Please log in to access this page.')
 _mail = Mail()
 bootstrap = Bootstrap()
 moment = Moment()
@@ -40,7 +40,7 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     migrate.init_app(app, db, render_as_batch=True)
-    login.init_app(app)
+    login_manager.init_app(app)
     _mail.init_app(app)
     bootstrap.init_app(app)
     moment.init_app(app)
@@ -117,8 +117,8 @@ def get_locale():
     return request.accept_languages.best_match(current_app.config['LANGUAGES'])
 
 
-from app.mail.models import mail_address, mail_thread, message, mail
-from app.fetchmail.models import fetchmail
-from app.auth.models import user
+from app.mail import models
+from app.fetchmail import models
+from app.auth import models
 from app.main import models
 from app import models
