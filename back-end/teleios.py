@@ -17,7 +17,6 @@ def make_shell_context():
 def fetchmail():
     """Scheduled job for fetching incoming emails."""
     print(str(datetime.utcnow()), 'Fetching emails')
-    print(url_for('fetchmail.fetchmail'))
     # user = User(fname='Alfred')
     # db.session.add(user)
     # db.session.commit()

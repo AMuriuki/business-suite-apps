@@ -57,7 +57,7 @@ def create_app(config_class=Config):
     app.register_blueprint(fetchmail_bp)
 
     from app.settings import bp as settings_bp
-    app.register_blueprint(settings_bp, url_prefix='/settings')
+    app.register_blueprint(settings_bp)
 
     from app.mail import bp as mail_bp
     app.register_blueprint(mail_bp)
