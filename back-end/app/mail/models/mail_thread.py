@@ -21,7 +21,7 @@ from lxml import etree
 
 from app import db
 from app.mail.models.message import MailMessage
-from app.main.models import Record
+from app.main.models.records import Record
 
 
 _logger = logging.getLogger(__name__)

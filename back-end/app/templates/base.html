@@ -297,32 +297,16 @@
                                     </ul><!-- .nk-menu -->
                                     <ul class="nk-menu">
                                         <li class="nk-menu-heading">
-                                            <h6 class="overline-title text-primary-alt">Use-Case Concept</h6>
-                                        </li><!-- .nk-menu-heading -->
-                                        <li class="nk-menu-item">
-                                            <a href="html/subscription/index.html" class="nk-menu-link" target="_blank">
-                                                <span class="nk-menu-icon"><em
-                                                        class="icon ni ni-calendar-booking"></em></span>
-                                                <span class="nk-menu-text">Subscription - SaaS</span>
-                                            </a>
-                                        </li><!-- .nk-menu-item -->
-                                        <li class="nk-menu-heading">
                                             <h6 class="overline-title text-primary-alt">Dashboards</h6>
                                         </li><!-- .nk-menu-heading -->
                                         <li class="nk-menu-item">
-                                            <a href="{{url_for('main.index')}}" class="nk-menu-link">
+                                            <a href="{{url_for('crm.kanban')}}" class="nk-menu-link">
                                                 <span class="nk-menu-icon"><em class="icon ni ni-dashlite"></em></span>
-                                                <span class="nk-menu-text">SaaS Dashboard</span>
-                                            </a>
-                                        </li><!-- .nk-menu-item -->
-                                        <li class="nk-menu-item">
-                                            <a href="html/index-analytics.html" class="nk-menu-link">
-                                                <span class="nk-menu-icon"><em class="icon ni ni-growth"></em></span>
-                                                <span class="nk-menu-text">Analytics Dashboard</span>
+                                                <span class="nk-menu-text">CRM Dashboard</span>
                                             </a>
                                         </li><!-- .nk-menu-item -->
                                         <li class="nk-menu-heading">
-                                            <h6 class="overline-title text-primary-alt">Pre-Built Pages</h6>
+                                            <h6 class="overline-title text-primary-alt">{{modules}}</h6>
                                         </li><!-- .nk-menu-heading -->
                                         <li class="nk-menu-item has-sub">
                                             <a href="#" class="nk-menu-link nk-menu-toggle">
@@ -552,15 +536,15 @@
                                             <h6 class="overline-title text-primary-alt">Others</h6>
                                         </li><!-- .nk-menu-heading -->
                                         <li class="nk-menu-item">
-                                            <a href="html/email-templates.html" class="nk-menu-link">
-                                                <span class="nk-menu-icon"><em class="icon ni ni-text-rich"></em></span>
-                                                <span class="nk-menu-text">Email Template</span>
+                                            <a href="{{url_for('settings.settings')}}" class="nk-menu-link">
+                                                <span class="nk-menu-icon"><em class="icon ni ni-setting"></em></span>
+                                                <span class="nk-menu-text">Settings</span>
                                             </a>
                                         </li>
                                         <li class="nk-menu-item">
                                             <a href="html/components.html" class="nk-menu-link">
                                                 <span class="nk-menu-icon"><em class="icon ni ni-layers"></em></span>
-                                                <span class="nk-menu-text">All Components</span>
+                                                <span class="nk-menu-text">All Apps</span>
                                             </a>
                                         </li>
                                     </ul><!-- .nk-menu -->

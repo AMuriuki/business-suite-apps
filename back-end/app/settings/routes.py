@@ -11,4 +11,4 @@ from app.decorators import admin_required
 @login_required
 @admin_required
 def settings():
-    return render_template('settings/settings.html', title='Settings | Teleios')
+    return render_template('settings/settings.html', title='Settings | Teleios', modules='Settings Modules')

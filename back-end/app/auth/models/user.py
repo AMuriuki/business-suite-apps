@@ -12,7 +12,8 @@ import redis
 import rq
 from app import db, login_manager
 from app.search import add_to_index, remove_from_index, query_index
-from app.main.models import Task, Notification
+from app.main.models.tasks import Task
+from app.main.models.notifications import Notification
 from app.mail.models.message import MailMessage
 # from app.mail.models.mail_address import MailAddress
 from app.models import SearchableMixin, PaginatedAPIMixin
