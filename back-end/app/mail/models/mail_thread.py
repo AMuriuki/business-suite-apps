@@ -20,7 +20,7 @@ from collections import namedtuple
 from lxml import etree
 
 from app import db
-from app.mail.models.message import MailMessage
+from app.mail.models.message import Message
 from app.main.models.records import Record
 
 
@@ -70,7 +70,7 @@ class MailThreadMixin(object):
         if not isinstance(message, Message):
             raise TypeError(
                 'message must be an email.message.Message at this point')
-        message = db.session.query(MailMessage).filter_by(
+        message = db.session.query(Message).filter_by(
             in_reply_to=message_dict['message_id']).first()
         if message:
             model = message.record_id
@@ -121,14 +121,14 @@ class MailThreadMixin(object):
         if strip_attachments:
             msg_dict.pop('attachments', None)
 
-        existing_msg_id = db.session.query(MailMessage).filter_by(
+        existing_msg_id = db.session.query(Message).filter_by(
             message_id=msg_dict['message_id']).first()
 
         if existing_msg_id:
             _logger.info('Ignored mail from %s to %s with Message-Id %s: found duplicated Message-Id during processing',
                          msg_dict.get('email_from'), msg_dict.get('to'), msg_dict.get('message_id'))
             return False
-        message = MailMessage(subject=msg_dict['subject'], date=msg_dict['date'], body=msg_dict['body'], parent_id=msg_dict['parent_id'], message_id=msg_dict['message_id'], in_reply_to=msg_dict['in_reply_to'],
+        message = Message(subject=msg_dict['subject'], date=msg_dict['date'], body=msg_dict['body'], parent_id=msg_dict['parent_id'], message_id=msg_dict['message_id'], in_reply_to=msg_dict['in_reply_to'],
                               fetchmailserver_id=self.id, timestamp=datetime.datetime.now(), record_id=record, message_type=msg_dict['message_type'], email_from=msg_dict['email_from'], recipients=msg_dict['recipients'])
         db.session.add(message)
 
@@ -411,7 +411,7 @@ class MailThreadMixin(object):
             msg_dict['date'] = message.get('Date')
 
         if msg_dict['in_reply_to']:
-            reply_message = db.session.query(MailMessage).filter_by(
+            reply_message = db.session.query(Message).filter_by(
                 message_id=msg_dict['in_reply_to']).all()
             if reply_message:
                 msg_dict['parent_id'] = reply_message.id

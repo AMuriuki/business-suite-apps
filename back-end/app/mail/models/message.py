@@ -12,17 +12,17 @@ class MessageTypeEnum(enum.Enum):
     user_notification = 'User Specific Notification'
 
 
-class MailMessage(db.Model):
+class Message(db.Model):
     """
-    Messages model: system notification (replacing res.log notifications), 
-    comments (OpenChatter discussion) and incoming emails
+    Messages model: system notification, 
+    comments (OpenChatter discussion), direct/inbox messages, and incoming emails
     """
     id = db.Column(db.Integer, primary_key=True)
     subject = db.Column(db.String(128))
     date = db.Column(db.String(128))
     body = db.Column(db.Text())
     # attachment_id =
-    parent_id = db.Column(db.Integer, db.ForeignKey('mail_message.id'))
+    parent_id = db.Column(db.Integer, db.ForeignKey('message.id'))
     message_id = db.Column(db.String(128), index=True)
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -31,7 +31,7 @@ class MailMessage(db.Model):
     fetchmailserver_id = db.Column(
         db.Integer, db.ForeignKey('fetchmail_server.id'))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    children = db.relationship('MailMessage', backref=('parent'), remote_side=id)
+    children = db.relationship('Message', backref=('parent'), remote_side=id)
     record_id = db.Column(db.Integer, db.ForeignKey('record.id'))
     # record_name = db.Column(db.String(128))
     message_type = db.Column(

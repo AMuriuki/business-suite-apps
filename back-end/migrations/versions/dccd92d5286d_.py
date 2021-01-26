@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 63a1d666a2e9
+Revision ID: dccd92d5286d
 Revises: 
-Create Date: 2021-01-04 14:14:19.649858
+Create Date: 2021-01-25 23:47:00.105565
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '63a1d666a2e9'
+revision = 'dccd92d5286d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -68,9 +68,9 @@ def upgrade():
     sa.Column('username', sa.String(length=64), nullable=True),
     sa.Column('role_id', sa.Integer(), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
+    sa.Column('phone_no', sa.String(length=120), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=True),
     sa.Column('last_seen', sa.DateTime(), nullable=True),
-    sa.Column('token', sa.String(length=32), nullable=True),
     sa.Column('token_expiration', sa.DateTime(), nullable=True),
     sa.Column('last_message_read_time', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], name=op.f('fk_user_role_id_roles')),
@@ -80,7 +80,7 @@ def upgrade():
         batch_op.create_index(batch_op.f('ix_user_email'), ['email'], unique=True)
         batch_op.create_index(batch_op.f('ix_user_fname'), ['fname'], unique=False)
         batch_op.create_index(batch_op.f('ix_user_lname'), ['lname'], unique=False)
-        batch_op.create_index(batch_op.f('ix_user_token'), ['token'], unique=True)
+        batch_op.create_index(batch_op.f('ix_user_phone_no'), ['phone_no'], unique=True)
         batch_op.create_index(batch_op.f('ix_user_username'), ['username'], unique=True)
 
     op.create_table('followers',
@@ -89,18 +89,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['followed_id'], ['user.id'], name=op.f('fk_followers_followed_id_user')),
     sa.ForeignKeyConstraint(['follower_id'], ['user.id'], name=op.f('fk_followers_follower_id_user'))
     )
-    op.create_table('mail_address',
-    sa.Column('id', sa.String(length=36), nullable=False),
-    sa.Column('Address Name', sa.String(length=128), nullable=True),
-    sa.Column('address_record_id', sa.Integer(), nullable=True),
-    sa.Column('address_user_id', sa.Integer(), nullable=True),
-    sa.Column('Default Values', sa.Text(), nullable=True),
-    sa.Column('Alias Domain', sa.String(length=128), nullable=True),
-    sa.ForeignKeyConstraint(['address_record_id'], ['record.id'], name=op.f('fk_mail_address_address_record_id_record')),
-    sa.ForeignKeyConstraint(['address_user_id'], ['user.id'], name=op.f('fk_mail_address_address_user_id_user')),
-    sa.PrimaryKeyConstraint('id', name=op.f('pk_mail_address'))
-    )
-    op.create_table('mail_message',
+    op.create_table('message',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('subject', sa.String(length=128), nullable=True),
     sa.Column('date', sa.String(length=128), nullable=True),
@@ -116,18 +105,18 @@ def upgrade():
     sa.Column('message_type', sa.Enum('email', 'comment', 'notification', 'user_notification', name='messagetypeenum'), nullable=False),
     sa.Column('email_from', sa.String(length=128), nullable=True),
     sa.Column('recipients', sa.Text(), nullable=True),
-    sa.ForeignKeyConstraint(['fetchmailserver_id'], ['fetchmail_server.id'], name=op.f('fk_mail_message_fetchmailserver_id_fetchmail_server')),
-    sa.ForeignKeyConstraint(['parent_id'], ['mail_message.id'], name=op.f('fk_mail_message_parent_id_mail_message')),
-    sa.ForeignKeyConstraint(['recipient_id'], ['user.id'], name=op.f('fk_mail_message_recipient_id_user')),
-    sa.ForeignKeyConstraint(['record_id'], ['record.id'], name=op.f('fk_mail_message_record_id_record')),
-    sa.ForeignKeyConstraint(['sender_id'], ['user.id'], name=op.f('fk_mail_message_sender_id_user')),
-    sa.PrimaryKeyConstraint('id', name=op.f('pk_mail_message'))
+    sa.ForeignKeyConstraint(['fetchmailserver_id'], ['fetchmail_server.id'], name=op.f('fk_message_fetchmailserver_id_fetchmail_server')),
+    sa.ForeignKeyConstraint(['parent_id'], ['message.id'], name=op.f('fk_message_parent_id_message')),
+    sa.ForeignKeyConstraint(['recipient_id'], ['user.id'], name=op.f('fk_message_recipient_id_user')),
+    sa.ForeignKeyConstraint(['record_id'], ['record.id'], name=op.f('fk_message_record_id_record')),
+    sa.ForeignKeyConstraint(['sender_id'], ['user.id'], name=op.f('fk_message_sender_id_user')),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_message'))
     )
-    with op.batch_alter_table('mail_message', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix_mail_message_in_reply_to'), ['in_reply_to'], unique=False)
-        batch_op.create_index(batch_op.f('ix_mail_message_message_id'), ['message_id'], unique=False)
-        batch_op.create_index(batch_op.f('ix_mail_message_message_type'), ['message_type'], unique=False)
-        batch_op.create_index(batch_op.f('ix_mail_message_timestamp'), ['timestamp'], unique=False)
+    with op.batch_alter_table('message', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_message_in_reply_to'), ['in_reply_to'], unique=False)
+        batch_op.create_index(batch_op.f('ix_message_message_id'), ['message_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_message_message_type'), ['message_type'], unique=False)
+        batch_op.create_index(batch_op.f('ix_message_timestamp'), ['timestamp'], unique=False)
 
     op.create_table('notification',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -168,18 +157,17 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix_notification_name'))
 
     op.drop_table('notification')
-    with op.batch_alter_table('mail_message', schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f('ix_mail_message_timestamp'))
-        batch_op.drop_index(batch_op.f('ix_mail_message_message_type'))
-        batch_op.drop_index(batch_op.f('ix_mail_message_message_id'))
-        batch_op.drop_index(batch_op.f('ix_mail_message_in_reply_to'))
+    with op.batch_alter_table('message', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_message_timestamp'))
+        batch_op.drop_index(batch_op.f('ix_message_message_type'))
+        batch_op.drop_index(batch_op.f('ix_message_message_id'))
+        batch_op.drop_index(batch_op.f('ix_message_in_reply_to'))
 
-    op.drop_table('mail_message')
-    op.drop_table('mail_address')
+    op.drop_table('message')
     op.drop_table('followers')
     with op.batch_alter_table('user', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_user_username'))
-        batch_op.drop_index(batch_op.f('ix_user_token'))
+        batch_op.drop_index(batch_op.f('ix_user_phone_no'))
         batch_op.drop_index(batch_op.f('ix_user_lname'))
         batch_op.drop_index(batch_op.f('ix_user_fname'))
         batch_op.drop_index(batch_op.f('ix_user_email'))

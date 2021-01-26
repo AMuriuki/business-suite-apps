@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/dashlite.css') }}">
     <link id="skin-default" rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}">
 </head>
-{% if title == 'Teleios | Sign In' %}
+{% if title == 'Teleios | Sign In' or title == 'Teleios | Reset Password' %}
 
 <body class="nk-body bg-white npc-default pg-auth">
     <div class="nk-app-root">
@@ -30,6 +30,7 @@
     <script src="{{ url_for('static', filename='assets/js/demo-settings.js') }}"></script>
 </body>
 {% else %}
+
 <body class="nk-body bg-white npc-default has-aside">
     <div class="nk-app-root">
         <!-- main @s -->
@@ -200,7 +201,8 @@
                                             <div class="dropdown-inner user-card-wrap bg-lighter d-none d-md-block">
                                                 <div class="user-card">
                                                     <div class="user-info">
-                                                        <span class="lead-text">{{current_user.fname}} {{current_user.lname}}</span>
+                                                        <span class="lead-text">{{current_user.fname}}
+                                                            {{current_user.lname}}</span>
                                                         <span class="sub-text">{{current_user.email}}</span>
                                                     </div>
                                                     <div class="user-action">
@@ -212,20 +214,30 @@
                                             </div>
                                             <div class="dropdown-inner">
                                                 <ul class="link-list">
-                                                    <li><a href="html/user-profile-regular.html"><em
-                                                                class="icon ni ni-user-alt"></em><span>View
-                                                                Profile</span></a></li>
-                                                    <li><a href="html/user-profile-setting.html"><em
-                                                                class="icon ni ni-setting-alt"></em><span>Account
-                                                                Setting</span></a></li>
-                                                    <li><a href="html/user-profile-activity.html"><em
-                                                                class="icon ni ni-activity-alt"></em><span>Login
-                                                                Activity</span></a></li>
+                                                    <li>
+                                                        <a href="#">
+                                                            <em class="icon ni ni-folder"></em>
+                                                            <span>Documentation</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="#">
+                                                            <em class="icon ni ni-help-alt"></em>
+                                                            <span>Support</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="#">
+                                                            <em class="icon ni ni-setting-alt"></em>
+                                                            <span>Account Setting</span>
+                                                        </a>
+                                                    </li>
                                                 </ul>
                                             </div>
                                             <div class="dropdown-inner">
                                                 <ul class="link-list">
-                                                    <li><a href="{{url_for('auth.logout')}}"><em class="icon ni ni-signout"></em><span>Sign
+                                                    <li><a href="{{url_for('auth.logout')}}"><em
+                                                                class="icon ni ni-signout"></em><span>Sign
                                                                 out</span></a></li>
                                                 </ul>
                                             </div>
@@ -300,9 +312,9 @@
                                             <h6 class="overline-title text-primary-alt">Dashboards</h6>
                                         </li><!-- .nk-menu-heading -->
                                         <li class="nk-menu-item">
-                                            <a href="{{url_for('crm.kanban')}}" class="nk-menu-link">
+                                            <a href="" class="nk-menu-link">
                                                 <span class="nk-menu-icon"><em class="icon ni ni-dashlite"></em></span>
-                                                <span class="nk-menu-text">CRM Dashboard</span>
+                                                <span class="nk-menu-text">Teleios Dashboard</span>
                                             </a>
                                         </li><!-- .nk-menu-item -->
                                         <li class="nk-menu-heading">

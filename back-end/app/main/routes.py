@@ -39,7 +39,7 @@ def index():
         return redirect(url_for('main.index'))
     page = request.args.get('page', 1, type=int)
     posts = "null"
-    return render_template('index.html', title=_('Home'), form=form, posts=posts)
+    return render_template('index.html', title=_('Teleios | Home'), form=form, posts=posts)
 
 
 @bp.route('/explore')

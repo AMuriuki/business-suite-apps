@@ -14,8 +14,7 @@ from app import db, login_manager
 from app.search import add_to_index, remove_from_index, query_index
 from app.main.models.tasks import Task
 from app.main.models.notifications import Notification
-from app.mail.models.message import MailMessage
-# from app.mail.models.mail_address import MailAddress
+from app.mail.models.message import Message
 from app.models import SearchableMixin, PaginatedAPIMixin
 
 
@@ -91,36 +90,39 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     email = db.Column(db.String(120), index=True, unique=True)
+    phone_no = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    token = db.Column(db.String(32), index=True, unique=True)
+    # token = db.Column(db.String(32), index=True, unique=True)
     token_expiration = db.Column(db.DateTime)
     followed = db.relationship(
         'User', secondary=followers,
         primaryjoin=(followers.c.follower_id == id),
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    messages_sent = db.relationship('MailMessage',
-                                    foreign_keys='MailMessage.sender_id',
+    messages_sent = db.relationship('Message',
+                                    foreign_keys='Message.sender_id',
                                     backref='author', lazy='dynamic')
-    messages_received = db.relationship('MailMessage',
-                                        foreign_keys='MailMessage.recipient_id',
+    messages_received = db.relationship('Message',
+                                        foreign_keys='Message.recipient_id',
                                         backref='recipient', lazy='dynamic')
     last_message_read_time = db.Column(db.DateTime)
     notifications = db.relationship('Notification', backref='user',
                                     lazy='dynamic')
     tasks = db.relationship('Task', backref='user', lazy='dynamic')
-    address = db.relationship('MailAddress', backref='owner', lazy='dynamic')
-    # incoming_mail_server = db.relationship(
-    #     'FetchmailServer', backref='owner_incoming_mail_server', lazy='dynamic')
 
-    def __init__(self, **kwargs):
-        super(User, self).__init__(**kwargs)
-        if self.role is None:
-            if self.email == current_app.config['TELEIOS_ADMIN']:
-                self.role = Role.query.filter_by(name='Administrator').first()
-            if self.role is None:
-                self.role = Role.query.filter_by(default=True).first()
+    @staticmethod
+    def dummy_users():
+        user = User.query.first()
+        if user is None:
+            users = [
+                User(fname='Admin', lname='User',  username='admin', email='admin@arnoldnderitu.com',
+                     phone_no='0708486068', password_hash=generate_password_hash('admin'), role_id=3),
+                User(fname='Arnold', lname='Muriuki',  username='amuriuki', email='amuriuki@arnoldnderitu.com',
+                     phone_no='0708486069', password_hash=generate_password_hash('amuriuki'), role_id=1),
+            ]
+        db.session.bulk_save_objects(users)
+        db.session.commit()
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -168,8 +170,8 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
 
     def new_messages(self):
         last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
-        return MailMessage.query.filter_by(recipient=self).filter(
-            MailMessage.timestamp > last_read_time).count()
+        return Message.query.filter_by(recipient=self).filter(
+            Message.timestamp > last_read_time).count()
 
     def add_notification(self, name, data):
         self.notifications.filter_by(name=name).delete()

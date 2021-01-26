@@ -8,13 +8,7 @@
                 <em class="icon ni ni-info"></em>
             </a>
         </div>
-        <div class="brand-logo pb-4 text-center">
-            <a href="{{url_for('main.index')}}" class="logo-link">
-                <img class="logo-light logo-img logo-img-lg" src="{{ url_for('static', filename='images/logo.png') }}"
-                    alt="logo">
-                <img class="logo-dark logo-img logo-img-lg"
-                    src="{{ url_for('static', filename='images/logo-dark.png') }}" alt="logo-dark"></a>
-        </div>
+        {% include "auth/logo.html" %}
         <div class="card card-bordered">
             <div class="card-inner card-inner-lg">
                 <div class="nk-block-head">
@@ -24,6 +18,7 @@
                             <p>Access Teleios using your email/username and password.</p>
                         </div>
                     </div>
+                    <br>
                     <div>
                         {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
@@ -77,33 +72,7 @@
                 </div>
             </div>
         </div>
-        <div class="nk-block nk-auth-footer">
-            <div class="nk-block-between">
-                <ul class="nav nav-sm">
-                    <li class="nav-item"><a class="nav-link" href="#">Terms & Condition</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Privacy Policy</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Help</a></li>
-                    <li class="nav-item dropup"><a class="dropdown-toggle dropdown-indicator has-indicator nav-link"
-                            data-toggle="dropdown" data-offset="0,10"><small>English</small></a>
-                        <div class="dropdown-menu dropdown-menu-sm dropdown-menu-right">
-                            <ul class="language-list">
-                                <li><a href="#" class="language-item"><img src="../../images/flags/english.html" alt=""
-                                            class="language-flag"><span class="language-name">English</span></a></li>
-                                <li><a href="#" class="language-item"><img src="../../images/flags/spanish.html" alt=""
-                                            class="language-flag"><span class="language-name">Español</span></a></li>
-                                <li><a href="#" class="language-item"><img src="../../images/flags/french.html" alt=""
-                                            class="language-flag"><span class="language-name">Français</span></a></li>
-                                <li><a href="#" class="language-item"><img src="../../images/flags/turkey.html" alt=""
-                                            class="language-flag"><span class="language-name">Türkçe</span></a></li>
-                            </ul>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div class="mt-3">
-                <p>&copy; 2019 DashLite. All Rights Reserved.</p>
-            </div>
-        </div>
+        {% include "auth/auth-footer.html" %}        
     </div>
 </div>
 {% endblock %}

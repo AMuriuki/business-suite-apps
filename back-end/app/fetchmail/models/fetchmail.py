@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from app import db
 from app.models import SearchableMixin
 from app.mail.models.mail_thread import MailThreadMixin
-from app.mail.models.message import MailMessage
+from app.mail.models.message import Message
 
 
 _logger = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ class FetchmailServer(MailThreadMixin, db.Model):
 
     # Defines the order of processing, lower values mean higher priority", default=5)
     priority = db.Column(db.String(128), name="Server Priority")
-    messages = db.relationship('MailMessage', backref="Messages", lazy='dynamic')
+    messages = db.relationship('Message', backref="Messages", lazy='dynamic')
     configuration = db.Column(db.Text(), name="Configuration")
     # script
 
