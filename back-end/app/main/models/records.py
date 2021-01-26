@@ -6,4 +6,4 @@ class Record(db.Model):
     name = db.Column(db.String(128), index=True)
     fetchmailserver = db.relationship(
         'FetchmailServer', backref='fetchmail_record', lazy='dynamic')
-    messages = db.relationship('Message', backref='thread', lazy='dynamic')
+    # messages = db.relationship('Message', backref='thread', lazy='dynamic')

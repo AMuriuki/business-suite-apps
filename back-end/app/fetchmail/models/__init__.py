@@ -1,0 +1,1 @@
+from app.fetchmail.models import fetchmail

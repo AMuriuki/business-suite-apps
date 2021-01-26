@@ -121,7 +121,7 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
                 User(fname='Arnold', lname='Muriuki',  username='amuriuki', email='amuriuki@arnoldnderitu.com',
                      phone_no='0708486069', password_hash=generate_password_hash('amuriuki'), role_id=1),
             ]
-        db.session.bulk_save_objects(users)
+            db.session.bulk_save_objects(users)
         db.session.commit()
 
     def __repr__(self):

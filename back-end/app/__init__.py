@@ -121,4 +121,5 @@ from app.mail import models
 from app.fetchmail import models
 from app.auth import models
 from app.main import models
+from app.settings import models
 from app import models

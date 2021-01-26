@@ -3,6 +3,7 @@ from app.auth.models.user import User
 from flask import url_for
 from datetime import datetime
 from app.auth.models.user import User, Role
+from app.main.models.module import Module, ModuleCategory
 from flask_migrate import Migrate, upgrade
 
 app = create_app()
@@ -34,3 +35,5 @@ def deploy():
     # create or update user roles
     Role.insert_roles()
     User.dummy_users()  
+    Module.insert_modules()
+    ModuleCategory.insert_categories()
