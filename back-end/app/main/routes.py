@@ -23,6 +23,12 @@ def index():
     modulecategories = module.ModuleCategory
 
     modulecategories = modulecategories.query.all()
-    
+    _modules = _modules.query.all()
     modules = "All apps - Categories"
-    return render_template('index.html', title=_('Teleios | Home'), modules=modules, modulecategories=modulecategories)
+    return render_template('index.html', title=_('Teleios | Home'), modules=modules, modulecategories=modulecategories, _modules=_modules)
+
+
+@bp.route('/module/<name>', methods=['GET', 'POST'])
+@login_required
+def _module(name):
+    return render_template('base.html', title=_('Teleios | '+ name))

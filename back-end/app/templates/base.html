@@ -329,7 +329,7 @@
                                             {% for module in modulecategory.modules %}
                                             <ul class="nk-menu-sub">
                                                 <li class="nk-menu-item">
-                                                    <a href="hh" class="nk-menu-link"><span
+                                                    <a href="{{url_for('main._module', name=module.name)}}" class="nk-menu-link"><span
                                                             class="nk-menu-text">{{module.name}}</span></a>
                                                 </li>                                                
                                             </ul><!-- .nk-menu-sub -->
